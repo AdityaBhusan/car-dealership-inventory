@@ -26,8 +26,11 @@ remaining work.
   Start it before any test run or every database test fails to connect.
 - Databases `dealership` and `dealership_test` are both migrated to head
   (`97b120c97e99`).
-- `backend/.env` and `frontend/.env` exist locally and are gitignored. Only the
-  `.env.example` files are committed, and they contain placeholders.
+- Three `.env` files exist locally and are all gitignored: the repository root
+  (`POSTGRES_*`, read by Docker Compose), `backend/.env` and `frontend/.env`.
+  Only the `.env.example` files are committed, and they hold placeholders.
+- `docker-compose.yml` carries no credentials; it substitutes them from the
+  root `.env` and fails fast with a clear message if that file is missing.
 - The local dev administrator is `admin@apexmotors.com`. Its password is the
   `ADMIN_PASSWORD` value in the gitignored `backend/.env` — deliberately not
   written down here, because this file is committed.
@@ -117,14 +120,12 @@ Seven screenshots captured in `screenshots/`.
 
 ## Known gaps and warnings
 
-- **The raw Claude Code transcript contains live secrets.** It lives at
+- **The raw Claude Code transcript contains stale secrets.** It lives at
   `~/.claude/projects/C--Users-Aditya-Singh-incubyteproject-car-dealership-inventory/<session-id>.jsonl`
-  and includes a read of `backend/.env`, so it contains the local database
-  password and JWT secret. Redact it before pasting any of it into
-  `PROMPTS.md` or publishing it.
-- `docker-compose.yml` carries the local dev database password in plain text.
-  It was committed before this work started and is local-only, so it was left
-  alone; rotate it if the compose file is ever used beyond a dev machine.
+  and includes a read of `backend/.env`. The database password, `JWT_SECRET`
+  and administrator password have all since been **rotated and verified**, so
+  the values in the transcript no longer work — but they are still visible, so
+  redact them before pasting any of it into `PROMPTS.md`.
 - `app/db/session.py` `get_db` lines are uncovered: tests override the
   dependency to reach the test database. Exercised in production by every
   request.

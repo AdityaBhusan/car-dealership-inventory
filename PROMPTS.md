@@ -41,16 +41,32 @@ inside that transcript**, including:
 - the `JWT_SECRET` value,
 - the local administrator's password.
 
-Those are development-only values on a local machine, but they are still
-secrets and they must not be pushed to a public repository. Before including
-any of the transcript:
+### ✅ Those values have been rotated
 
-1. Rotate the local values anyway (`JWT_SECRET`, the database password, and
-   the admin password) — treat them as burned.
-2. Search the exported text for `JWT_SECRET`, `dealerpass`, `DATABASE_URL`,
-   `ADMIN_PASSWORD` and the admin password string, and replace each with
-   `<redacted>`.
-3. Only then paste the result into §3 below.
+All three were replaced after the transcript was written, so **the credentials
+that appear in the transcript no longer work**:
+
+| Secret | Status |
+|---|---|
+| PostgreSQL password for role `dealer` | rotated (`ALTER USER`), verified |
+| `JWT_SECRET` | rotated — a token signed with the old secret now returns 401 |
+| Administrator password | rotated — the old password now returns 401 |
+
+The new values were generated and written straight to the gitignored `.env`
+files by a script that never printed them, so they are not in any transcript.
+`docker-compose.yml` no longer contains a password either; it reads one from
+the gitignored root `.env`.
+
+The live administrator password is in `backend/.env` (`ADMIN_PASSWORD`).
+
+### Still redact before publishing
+
+Rotation removes the risk, but the stale values are still *visible* in the
+transcript text, so before pasting any of it into §3:
+
+1. Search the exported text for `JWT_SECRET`, `dealerpass`, `DATABASE_URL`,
+   `ADMIN_PASSWORD` and `AdminPass123!`, and replace each with `<redacted>`.
+2. Only then paste the result into §3 below.
 
 Do not commit the `.jsonl` file as-is.
 
@@ -2816,7 +2832,7 @@ missing price as `$0`. All three are described in the README's
 
 ## 6. Checklist before submission
 
-- [ ] Local `JWT_SECRET`, database password and admin password rotated
+- [x] Local `JWT_SECRET`, database password and admin password rotated
 - [ ] Raw transcript exported
 - [ ] Transcript scanned for secrets and redacted
 - [ ] Transcript pasted into §3 (or committed and linked)

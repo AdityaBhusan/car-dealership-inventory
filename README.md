@@ -156,6 +156,23 @@ PostgreSQL may be installed natively instead of using Docker; just point
 
 ### Option A — Docker Compose (what this project uses)
 
+Compose reads its credentials from a `.env` file in the repository root, which
+is gitignored. Create it first:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then edit `.env` and set a real password:
+
+```ini
+POSTGRES_USER=dealer
+POSTGRES_PASSWORD=<a strong password>
+POSTGRES_DB=dealership
+```
+
+Start the database:
+
 ```powershell
 docker compose up -d
 ```
@@ -163,6 +180,17 @@ docker compose up -d
 This starts PostgreSQL 16 on `localhost:5432`, creates the `dealership`
 database, and runs `initdb/01-create-test-db.sql` to create `dealership_test`.
 The init script only runs on a **fresh** volume.
+
+`docker-compose.yml` itself contains no credentials — it fails fast with a
+clear message if `.env` is missing.
+
+> If you change `POSTGRES_PASSWORD` after the volume already exists, Postgres
+> will **not** pick it up: the init only runs once. Change the role's password
+> in the running database instead, then update both `.env` files:
+>
+> ```powershell
+> docker exec -it dealership-db psql -U dealer -d dealership -c "ALTER USER dealer WITH PASSWORD 'new-password';"
+> ```
 
 Check it is healthy before running anything else:
 
@@ -552,7 +580,10 @@ Implemented:
 - Database-level constraints as a final backstop: positive price, non-negative
   quantity, non-blank text, valid role, unique email.
 - CORS restricted to configured origins.
-- Secrets read from the environment; `.env` files gitignored.
+- Secrets read from the environment. No credential appears in any tracked file:
+  `backend/.env` and the root `.env` are both gitignored, and
+  `docker-compose.yml` substitutes its values from the latter rather than
+  hardcoding them. Only `.env.example` files are committed, with placeholders.
 
 **Token storage — stated honestly.** The access token is held in memory and
 mirrored to `sessionStorage` so that refreshing the page does not sign the user
@@ -668,9 +699,6 @@ repository.
   payment or reservation — out of scope for this kata.
 - **Search is `ILIKE`-based.** Fine at this scale; a large catalogue would want
   a trigram index or full-text search.
-- **`docker-compose.yml` contains a plain-text development database password.**
-  It predates this work and is local-only; rotate it if that file is ever used
-  beyond a development machine.
 - **Two uncovered areas** in the 96% backend coverage: the `get_db` dependency
   (overridden in tests, exercised by every real request) and the `main()` CLI
   wrapper in `seed.py` (whose `seed_vehicles()` function is fully tested).
