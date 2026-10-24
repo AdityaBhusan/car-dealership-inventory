@@ -13,12 +13,12 @@ import os
 from collections.abc import Generator
 
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from alembic import command
-from alembic.config import Config
 from app.core.config import get_settings
 
 BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

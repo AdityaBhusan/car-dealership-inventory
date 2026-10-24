@@ -1,8 +1,14 @@
 line-length = 100
 target-version = "py311"
+src = ["."]
 
 [lint]
 select = ["E", "F", "I", "UP", "B", "W"]
+
+[lint.isort]
+# Pinned so import grouping does not depend on the directory ruff runs from.
+known-first-party = ["app", "tests"]
+known-third-party = ["alembic"]
 
 [lint.per-file-ignores]
 "alembic/versions/*" = ["E501"]

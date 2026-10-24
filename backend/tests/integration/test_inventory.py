@@ -9,7 +9,9 @@ from tests.conftest import create_vehicle
 
 
 class TestPurchase:
-    def test_purchase_returns_the_updated_inventory_state(self, client, admin_headers, user_headers):
+    def test_purchase_returns_the_updated_inventory_state(
+        self, client, admin_headers, user_headers
+    ):
         created = create_vehicle(client, admin_headers, quantity=5)
 
         response = client.post(f"/api/vehicles/{created['id']}/purchase", headers=user_headers)

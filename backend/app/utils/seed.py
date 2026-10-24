@@ -27,7 +27,7 @@ DEMO_MARKER = "[Demo data]"
 DEMO_VEHICLES: list[tuple[str, str, str, str, int, int, str]] = [
     ("Toyota", "Camry", "Sedan", "25999.00", 12, 2024, "Dependable mid-size sedan."),
     ("Toyota", "RAV4", "SUV", "32499.00", 7, 2024, "Compact SUV with all-wheel drive."),
-    ("Toyota", "Corolla", "Hatchback", "22150.00", 9, 2023, "Efficient hatchback for city driving."),
+    ("Toyota", "Corolla", "Hatchback", "22150.00", 9, 2023, "Efficient city hatchback."),
     ("Honda", "Civic", "Sedan", "24499.00", 10, 2024, "Sporty handling and low running costs."),
     ("Honda", "CR-V", "SUV", "31250.00", 5, 2023, "Family SUV with generous cargo space."),
     ("Hyundai", "i20", "Hatchback", "18499.00", 14, 2024, "Nimble hatchback, well equipped."),
@@ -42,7 +42,7 @@ DEMO_VEHICLES: list[tuple[str, str, str, str, int, int, str]] = [
     ("Audi", "Q5", "SUV", "58250.00", 3, 2023, "Premium compact SUV."),
     ("Tesla", "Model 3", "Electric", "44990.00", 8, 2024, "Long-range electric saloon."),
     ("Tesla", "Model Y", "Electric", "52990.00", 5, 2024, "Electric crossover with large boot."),
-    ("Hyundai", "Ioniq 5", "Electric", "47500.00", 2, 2024, "800V electric crossover, rapid charging."),
+    ("Hyundai", "Ioniq 5", "Electric", "47500.00", 2, 2024, "800V crossover, rapid charging."),
 ]
 
 
