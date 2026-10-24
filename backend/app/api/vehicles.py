@@ -43,6 +43,7 @@ def list_vehicles(
 def search_vehicles(
     db: DbSession,
     current_user: CurrentUser,
+    q: TermQuery = None,
     make: TermQuery = None,
     model: TermQuery = None,
     category: TermQuery = None,
@@ -51,8 +52,12 @@ def search_vehicles(
     limit: LimitQuery = None,
     offset: OffsetQuery = 0,
 ) -> list[VehicleRead]:
-    """Filter inventory. Text filters are case-insensitive substring matches
-    and every filter may be combined."""
+    """Filter inventory.
+
+    `q` is a free-text term matched against make OR model; the named filters
+    are ANDed on top. Text matching is case-insensitive substring matching and
+    every filter may be combined.
+    """
     if min_price is not None and max_price is not None and min_price > max_price:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -60,6 +65,7 @@ def search_vehicles(
         )
     vehicles = vehicle_service.search_vehicles(
         db,
+        q=q,
         make=make,
         model=model,
         category=category,

@@ -29,6 +29,7 @@ def list_vehicles(db: Session, *, limit: int | None = None, offset: int = 0) -> 
 def search_vehicles(
     db: Session,
     *,
+    q: str | None = None,
     make: str | None = None,
     model: str | None = None,
     category: str | None = None,
@@ -39,6 +40,7 @@ def search_vehicles(
 ) -> list[Vehicle]:
     return repo.search_vehicles(
         db,
+        q=q,
         make=make,
         model=model,
         category=category,

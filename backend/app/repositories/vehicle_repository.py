@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from sqlalchemy import Select, select, update
+from sqlalchemy import Select, or_, select, update
 from sqlalchemy.orm import Session
 
 from app.models import Vehicle
@@ -22,6 +22,7 @@ def _contains(column, term: str) -> object:
 
 def build_search_query(
     *,
+    q: str | None = None,
     make: str | None = None,
     model: str | None = None,
     category: str | None = None,
@@ -29,6 +30,9 @@ def build_search_query(
     max_price: Decimal | None = None,
 ) -> Select:
     query = select(Vehicle)
+    if q:
+        # Free-text box: one term, matched against make OR model.
+        query = query.where(or_(_contains(Vehicle.make, q), _contains(Vehicle.model, q)))
     if make:
         query = query.where(_contains(Vehicle.make, make))
     if model:
@@ -52,6 +56,7 @@ def list_vehicles(db: Session, *, limit: int | None = None, offset: int = 0) -> 
 def search_vehicles(
     db: Session,
     *,
+    q: str | None = None,
     make: str | None = None,
     model: str | None = None,
     category: str | None = None,
@@ -61,7 +66,12 @@ def search_vehicles(
     offset: int = 0,
 ) -> list[Vehicle]:
     query = build_search_query(
-        make=make, model=model, category=category, min_price=min_price, max_price=max_price
+        q=q,
+        make=make,
+        model=model,
+        category=category,
+        min_price=min_price,
+        max_price=max_price,
     ).offset(offset)
     if limit is not None:
         query = query.limit(limit)

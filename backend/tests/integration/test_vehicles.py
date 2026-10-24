@@ -354,3 +354,59 @@ class TestDeleteVehicle:
         response = client.delete("/api/vehicles/999999", headers=admin_headers)
 
         assert response.status_code == 404
+
+
+class TestFreeTextSearch:
+    """The dashboard search box needs one field that matches make OR model."""
+
+    def test_q_matches_the_make(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Toyota", model="Camry")
+        create_vehicle(client, admin_headers, make="Honda", model="Civic")
+
+        response = client.get("/api/vehicles/search?q=toyota", headers=user_headers)
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert len(body) == 1
+        assert body[0]["make"] == "Toyota"
+
+    def test_q_matches_the_model(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Toyota", model="Camry")
+        create_vehicle(client, admin_headers, make="Honda", model="Civic")
+
+        response = client.get("/api/vehicles/search?q=civic", headers=user_headers)
+
+        body = response.json()
+        assert len(body) == 1
+        assert body[0]["model"] == "Civic"
+
+    def test_q_matches_partially_and_case_insensitively(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Mercedes-Benz", model="C-Class")
+
+        response = client.get("/api/vehicles/search?q=BENZ", headers=user_headers)
+
+        assert len(response.json()) == 1
+
+    def test_q_combines_with_other_filters(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Toyota", model="RAV4", category="SUV")
+        create_vehicle(client, admin_headers, make="Toyota", model="Camry", category="Sedan")
+
+        response = client.get("/api/vehicles/search?q=toyota&category=SUV", headers=user_headers)
+
+        body = response.json()
+        assert len(body) == 1
+        assert body[0]["model"] == "RAV4"
+
+    def test_q_returns_nothing_when_there_is_no_match(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Toyota", model="Camry")
+
+        response = client.get("/api/vehicles/search?q=ferrari", headers=user_headers)
+
+        assert response.json() == []
+
+    def test_q_does_not_treat_wildcards_as_patterns(self, client, admin_headers, user_headers):
+        create_vehicle(client, admin_headers, make="Toyota", model="Camry")
+
+        response = client.get("/api/vehicles/search?q=%25", headers=user_headers)
+
+        assert response.json() == []
