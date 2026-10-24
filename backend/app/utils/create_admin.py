@@ -17,12 +17,25 @@ import argparse
 import os
 import sys
 
+from pydantic import BaseModel, EmailStr, ValidationError, field_validator
+
 from app.core.security import hash_password
 from app.db.session import SessionLocal
 from app.models import UserRole
 from app.services import auth_service
 
 MIN_PASSWORD_LENGTH = 8
+
+
+class AdminEmail(BaseModel):
+    """Same validation and normalisation as the auth schemas."""
+
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def normalize(cls, value: str) -> str:
+        return value.strip().lower()
 
 
 def main() -> int:
@@ -41,6 +54,16 @@ def main() -> int:
     if not email:
         print("ADMIN_EMAIL is not set.", file=sys.stderr)
         return 1
+
+    # Validate with the same rules the login endpoint uses, so we can never
+    # create an administrator whose address /api/auth/login would reject.
+    try:
+        email = AdminEmail(email=email).email
+    except ValidationError as exc:
+        reason = exc.errors()[0]["msg"]
+        print(f"ADMIN_EMAIL is not a usable email address: {reason}", file=sys.stderr)
+        return 1
+
     if len(password) < MIN_PASSWORD_LENGTH:
         print(
             f"ADMIN_PASSWORD must be set and at least {MIN_PASSWORD_LENGTH} characters.",

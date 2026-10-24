@@ -146,3 +146,44 @@ class TestPromotion:
             json={"email": "promote@example.com", "password": "BrandNewPass123!"},
         )
         assert response.status_code == 200
+
+
+class TestEmailValidation:
+    """An address the login endpoint would reject must fail at creation time,
+    not silently produce an administrator who can never sign in."""
+
+    def test_rejects_an_address_with_a_reserved_tld(self, monkeypatch, db_session):
+        set_env(
+            monkeypatch, ADMIN_EMAIL="admin@dealership.local", ADMIN_PASSWORD="StrongPass123!"
+        )
+
+        assert script.main() == 1
+        assert fetch(db_session, "admin@dealership.local") is None
+
+    def test_rejects_a_malformed_address(self, monkeypatch, db_session):
+        set_env(monkeypatch, ADMIN_EMAIL="not-an-email", ADMIN_PASSWORD="StrongPass123!")
+
+        assert script.main() == 1
+        assert fetch(db_session, "not-an-email") is None
+
+    def test_normalizes_the_address_to_lowercase(self, monkeypatch, db_session):
+        set_env(
+            monkeypatch, ADMIN_EMAIL="  BOSS@Example.COM ", ADMIN_PASSWORD="StrongPass123!"
+        )
+
+        assert script.main() == 0
+        assert fetch(db_session, "boss@example.com") is not None
+
+    def test_a_created_admin_can_always_log_in(self, monkeypatch, client):
+        """The whole point: creation and login agree on what a valid email is."""
+        set_env(
+            monkeypatch, ADMIN_EMAIL="ops@apexmotors.com", ADMIN_PASSWORD="StrongPass123!"
+        )
+        assert script.main() == 0
+
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "ops@apexmotors.com", "password": "StrongPass123!"},
+        )
+
+        assert response.status_code == 200
