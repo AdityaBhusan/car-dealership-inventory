@@ -22,24 +22,34 @@ const compactCurrency = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
 
-export function formatPrice(value) {
+/**
+ * Number(null) and Number('') are both 0, which would render a missing price
+ * as "$0". Treat empty values as absent instead.
+ */
+function toAmount(value) {
+  if (value === null || value === undefined || value === '') return null
   const amount = Number(value)
-  return Number.isFinite(amount) ? currency.format(amount) : '—'
+  return Number.isFinite(amount) ? amount : null
+}
+
+export function formatPrice(value) {
+  const amount = toAmount(value)
+  return amount === null ? '—' : currency.format(amount)
 }
 
 export function formatPriceExact(value) {
-  const amount = Number(value)
-  return Number.isFinite(amount) ? currencyWithCents.format(amount) : '—'
+  const amount = toAmount(value)
+  return amount === null ? '—' : currencyWithCents.format(amount)
 }
 
 export function formatCompactCurrency(value) {
-  const amount = Number(value)
-  return Number.isFinite(amount) ? compactCurrency.format(amount) : '—'
+  const amount = toAmount(value)
+  return amount === null ? '—' : compactCurrency.format(amount)
 }
 
 export function formatNumber(value) {
-  const amount = Number(value)
-  return Number.isFinite(amount) ? amount.toLocaleString('en-US') : '—'
+  const amount = toAmount(value)
+  return amount === null ? '—' : amount.toLocaleString('en-US')
 }
 
 /** Totals used by the dashboard summary cards, derived from real API rows. */
