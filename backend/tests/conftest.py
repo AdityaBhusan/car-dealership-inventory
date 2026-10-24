@@ -13,12 +13,12 @@ import os
 from collections.abc import Generator
 
 import pytest
-from alembic import command
-from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
+from alembic import command
+from alembic.config import Config
 from app.core.config import get_settings
 
 BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -136,3 +136,20 @@ def admin_token(client: TestClient, db_session: Session) -> str:
 @pytest.fixture
 def admin_headers(admin_token: str) -> dict[str, str]:
     return auth_header(admin_token)
+
+
+VEHICLE_PAYLOAD = {
+    "make": "Toyota",
+    "model": "Camry",
+    "category": "Sedan",
+    "price": "25000.00",
+    "quantity": 10,
+}
+
+
+def create_vehicle(client: TestClient, headers: dict[str, str], **overrides) -> dict:
+    """Create a vehicle through the API and return the response body."""
+    payload = {**VEHICLE_PAYLOAD, **overrides}
+    response = client.post("/api/vehicles", json=payload, headers=headers)
+    assert response.status_code == 201, response.text
+    return response.json()
