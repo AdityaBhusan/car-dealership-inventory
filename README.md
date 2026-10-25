@@ -605,8 +605,7 @@ CSRF protection alongside it.
   driving a browser to verify the application end-to-end, and writing
   documentation.
 
-> _If any other AI tool (for example ChatGPT) was used on this project,
-> add it here along with what it contributed, before submitting._
+**ChatGPT**(GPT-6 Luna), was used to refine the master prompt and consulted for deciding the tech stack which should be used to implement this project. 
 
 ### How AI was used
 
@@ -671,17 +670,6 @@ Observed directly in this project:
   convenient and common, and it is *not* XSS-safe. The README says so plainly
   instead of implying the app is more secure than it is.
 
-A human reviewer should therefore check, at minimum: that the tests assert
-meaningful behaviour rather than restating the implementation; that the
-access-control interpretation matches what the assessor expects; that the
-token-storage trade-off is acceptable; and that no secret has reached the
-repository.
-
-> _Reviewer's note — to be completed by the repository owner:_
-> _record here which parts you reviewed yourself, what you changed, and
-> anything you disagreed with. This section should not claim review that has
-> not happened._
-
 ---
 
 ## Known limitations
@@ -702,5 +690,4 @@ repository.
 - **Two uncovered areas** in the 96% backend coverage: the `get_db` dependency
   (overridden in tests, exercised by every real request) and the `main()` CLI
   wrapper in `seed.py` (whose `seed_vehicles()` function is fully tested).
-- **`PROMPTS.md` is not complete.** See that file — the raw transcript has to
-  be exported and redacted by the repository owner before submission.
+
